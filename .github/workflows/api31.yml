@@ -20,9 +20,6 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
@@ -46,7 +43,9 @@ jobs:
         run: |
           APK=app/build/outputs/apk/debug/dirtyfrag.apk
           test -s "$APK"
-          MIN_SDK=$(apkanalyzer manifest min-sdk "$APK")
+          APKANALYZER=$(find "$ANDROID_HOME/cmdline-tools" -path '*/bin/apkanalyzer' | sort -V | tail -n 1)
+          test -n "$APKANALYZER"
+          MIN_SDK=$("$APKANALYZER" manifest min-sdk "$APK")
           test "$MIN_SDK" = "31"
           APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -n 1)
           test -n "$APKSIGNER"
